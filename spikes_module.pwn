@@ -5,6 +5,18 @@
     * Charge Role Play (c) Charge-rp.ru 2022
 */
 
+#include <a_samp>
+#include <streamer>
+
+#if defined _spikes_module_
+    #undef _spikes_module_
+#endif
+
+#if defined _spikes_module_
+    #endinput
+#endif
+#define _spikes_module_
+
 #if defined Spikes
     #undef Spikes
 #endif
@@ -38,28 +50,17 @@ const this.OBJECT_ID = 2892,
     this.SUBTRACT_MATERIALS = 300,
     this.MAX_SPIKES = 2,
     this.null = 0,
-    this.MAX_COMMAND_LEN = 32,
     this.INVALID_INTERIOR_ID = -1,
     this.INVALID_WORLD_ID = -1,
     this.INVALID_PLAYER_ID = -1,
     this.TIRES_SPIKES = 15;
 
 
-stock Spikes.Init()
-{
-    Callback.Add(@OnPlayerCommandText, #this.OnPlayerCommandText);
-    Callback.Add(@OnEnterDynamicArea, #this.OnEnterDynamicArea);
-    Callback.Add(@OnPlayerDisconnect, #this.OnPlayerDisconnect);
 
-    return true;
-}
-
-FUNCTION Spikes.OnPlayerCommandText(playerid, cmdtext[])
+public OnPlayerCommandText(playerid, cmdtext[])
 {
-    new cmd[this.MAX_COMMAND_LEN];
-    cmdparam(cmd, cmdtext);
  
-    if (CMDCompare(cmd, "/spikes", true) )
+    if (!strcmp(cmdtext, "/spikes", true) )
     {
 
         new
@@ -73,16 +74,16 @@ FUNCTION Spikes.OnPlayerCommandText(playerid, cmdtext[])
 
 
         if (GetPlayerInterior(playerid) != this.null) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " РњРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РЅР° СѓР»РёС†Рµ.");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Можно использоваться только на улице.");
 
         if (IsPlayerInAnyVehicle(playerid)) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Р’С‹ РґРѕР»Р¶РЅС‹ РЅР°С…РѕРґРёС‚СЊСЃСЏ РІРЅРµ Р°РІС‚РѕРјРѕР±РёР»СЏ.");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Вы должны находиться вне автомобиля.");
 
         if (this.base_materials < this.SUBTRACT_MATERIALS) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " РќР° Р±Р°Р·Рµ РјРµРЅСЊС€Рµ 300 РјР°С‚РµСЂРёР°Р»РѕРІ");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " На базе меньше 300 материалов");
 
         if (this.put_ships_player[playerid] >= this.MAX_SPIKES) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " РџРѕРґРѕР¶РґРёС‚Рµ, РїРѕРєР° РїСЂРѕС€Р»С‹Рµ С€РёРїС‹ РїСЂРёРґСѓС‚ РІ РЅРµРіРѕРґРЅРѕСЃС‚СЊ.");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Подождите, пока прошлые шипы придут в негодность.");
         
 
         this.spike_objects[playerid] = CreateDynamicObject(this.OBJECT_ID,x,y,z-this.Z_DOWN,this.null,
@@ -99,13 +100,30 @@ FUNCTION Spikes.OnPlayerCommandText(playerid, cmdtext[])
         this.put_ships_player[playerid]++;
         this.base_materials -= this.SUBTRACT_MATERIALS;
 
-        return SendClientMessage(playerid, COLOR_WHITE, " Р’С‹ СѓСЃС‚Р°РЅРѕРІРёР»Рё С€РёРїС‹. Р’СЂРµРјСЏ РґРµР№СЃС‚РІРёСЏ: 3 РјРёРЅСѓС‚С‹");;
+        return SendClientMessage(playerid, COLOR_WHITE, " Вы установили шипы. Время действия: 3 минуты");
     }
 
-    return true;
+    #if defined Spikes_OnPlayerCommandText
+        return Spikes_OnPlayerCommandText(playerid, cmdtext[]);
+    #else
+        return true;
+    #endif
 }
+#if defined _ALS_OnPlayerCommandText
+    #undef OnPlayerCommandText
+#else
+    #define _ALS_OnPlayerCommandText
+#endif
 
-FUNCTION Spikes.ClearShips(playerid)
+#define OnPlayerCommandText Spikes_OnPlayerCommandText
+#if defined Spikes_OnPlayerCommandText
+    forward Spikes_OnPlayerCommandText(playerid, cmdtext[]);
+#endif
+
+
+
+forward Spikes.ClearShips(playerid);
+public Spikes.ClearShips(playerid)
 {
     this.put_ships_player[playerid]--;
 
@@ -116,13 +134,14 @@ FUNCTION Spikes.ClearShips(playerid)
 
         this.spike_objects[playerid] = this.null;
 
-        return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Р’Р°С€Рё С€РёРїС‹ РїСЂРёС€Р»Рё РІ РЅРµ РїСЂРёРіРѕРґРЅРѕСЃС‚СЊ!");
+        return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Ваши шипы пришли в не пригодность!");
     }
     return true;
 }
 
-FUNCTION Spikes.OnEnterDynamicArea(playerid, areaid)
+public OnPlayerEnterDynamicArea(playerid, areaid)
 {
+    
     if (GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
     {
         for (new i, k; i < k; k = GetPlayerPoolSize(), i++ )
@@ -136,17 +155,49 @@ FUNCTION Spikes.OnEnterDynamicArea(playerid, areaid)
             }
         }
     }
-    return true;
-}
 
-FUNCTION Spikes.OnPlayerDisconnect(playerid, reason)
+    #if defined Spikes_OnPlayerEnterDynamicArea
+        return Spikes_OnPlayerEnterDynamicArea(playerid, areaid);
+    #else
+        return true;
+    #endif
+}
+#if defined _ALS_OnEnterDynamicArea
+    #undef OnPlayerEnterDynamicArea
+#else
+    #define _ALS_OnEnterDynamicArea
+#endif
+
+#define OnPlayerEnterDynamicArea Spikes_OnPlayerEnterDynamicArea
+#if defined Spikes_OnPlayerEnterDynamicArea
+    forward Spikes_OnPlayerEnterDynamicArea(playerid, areaid);
+#endif
+
+
+public OnPlayerDisconnect(playerid, reason)
 {
+
     if (this.spike_objects[playerid] != this.null)
     {
         DestroyDynamicObject(this.spike_objects[playerid]);
         DestroyDynamicArea(this.ship_area[playerid]);
     }
-    return true;
+
+    #if defined Spikes_OnPlayerDisconnect
+        return Spikes_OnPlayerDisconnect(playerid, reason);
+    #else
+        return true;
+    #endif
 }
+#if defined _ALS_OnPlayerDisconnect
+    #undef OnPlayerDisconnect
+#else
+    #define _ALS_OnPlayerDisconnect
+#endif
+
+#define OnPlayerDisconnect Spikes_OnPlayerDisconnect
+#if defined Spikes_OnPlayerDisconnect
+    forward Spikes_OnPlayerDisconnect(playerid, reason);
+#endif
 
 #undef this
