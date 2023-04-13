@@ -74,16 +74,16 @@ public OnPlayerCommandText(playerid, cmdtext[])
 
 
         if (GetPlayerInterior(playerid) != this.null) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Можно использоваться только на улице.");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " РњРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ С‚РѕР»СЊРєРѕ РЅР° СѓР»РёС†Рµ.");
 
         if (IsPlayerInAnyVehicle(playerid)) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Вы должны находиться вне автомобиля.");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Р’С‹ РґРѕР»Р¶РЅС‹ РЅР°С…РѕРґРёС‚СЊСЃСЏ РІРЅРµ Р°РІС‚РѕРјРѕР±РёР»СЏ.");
 
         if (this.base_materials < this.SUBTRACT_MATERIALS) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " На базе меньше 300 материалов");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " РќР° Р±Р°Р·Рµ РјРµРЅСЊС€Рµ 300 РјР°С‚РµСЂРёР°Р»РѕРІ");
 
         if (this.put_ships_player[playerid] >= this.MAX_SPIKES) 
-            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Подождите, пока прошлые шипы придут в негодность.");
+            return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " РџРѕРґРѕР¶РґРёС‚Рµ, РїРѕРєР° РїСЂРѕС€Р»С‹Рµ С€РёРїС‹ РїСЂРёРґСѓС‚ РІ РЅРµРіРѕРґРЅРѕСЃС‚СЊ.");
         
 
         this.spike_objects[playerid] = CreateDynamicObject(this.OBJECT_ID,x,y,z-this.Z_DOWN,this.null,
@@ -100,7 +100,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
         this.put_ships_player[playerid]++;
         this.base_materials -= this.SUBTRACT_MATERIALS;
 
-        return SendClientMessage(playerid, COLOR_WHITE, " Вы установили шипы. Время действия: 3 минуты");
+        return SendClientMessage(playerid, COLOR_WHITE, " Р’С‹ СѓСЃС‚Р°РЅРѕРІРёР»Рё С€РёРїС‹. Р’СЂРµРјСЏ РґРµР№СЃС‚РІРёСЏ: 3 РјРёРЅСѓС‚С‹");
     }
 
     #if defined Spikes_OnPlayerCommandText
@@ -134,7 +134,7 @@ public Spikes.ClearShips(playerid)
 
         this.spike_objects[playerid] = this.null;
 
-        return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Ваши шипы пришли в не пригодность!");
+        return SendClientMessage(playerid, COLOR_LIGHT_GRAY, " Р’Р°С€Рё С€РёРїС‹ РїСЂРёС€Р»Рё РІ РЅРµ РїСЂРёРіРѕРґРЅРѕСЃС‚СЊ!");
     }
     return true;
 }
